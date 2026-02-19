@@ -1,8 +1,6 @@
 fn main() {
-    // Embed the Windows application manifest requesting admin privileges.
-    // This makes the exe auto-elevate (UAC prompt) when launched.
-    #[cfg(target_os = "windows")]
-    embed_resource::compile("app.rc", embed_resource::NONE);
+    tauri_build::build();
 
-    tauri_build::build()
+    // Note: UAC manifest is added via post-build step using mt.exe
+    // to avoid conflicts with Tauri's built-in manifest
 }
