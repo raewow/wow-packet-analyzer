@@ -88,7 +88,6 @@ export default function PacketLog({
         const newIds = new Set(selectedIds);
         if (newIds.has(pkt.id)) {
           newIds.delete(pkt.id);
-          const newPrimary = newIds.size > 0 ? pkt.id : null;
           onSelectionChange(newIds, newIds.has(pkt.id) ? pkt.id : (newIds.size > 0 ? [...newIds][newIds.size - 1] : null));
         } else {
           newIds.add(pkt.id);

@@ -15,7 +15,7 @@ import { ParsedValue } from "../../types";
 
 // Custom parser for SizedCString (u32 length + string + null terminator)
 function readSizedCString(reader: BinaryReader): ParsedValue {
-  const length = reader.readU32();
+  reader.readU32(); // Read and discard length prefix
   const str = reader.readCString();
   return {
     kind: "string",
