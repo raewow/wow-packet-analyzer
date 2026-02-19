@@ -19,11 +19,11 @@ jobs:
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: i686-pc-windows-gnu,x86_64-pc-windows-gnu
 
-      - name: Set GNU toolchain as default
+      - name: Install GNU targets
         run: |
+          rustup target add i686-pc-windows-gnu
+          rustup target add x86_64-pc-windows-gnu
           rustup default stable-x86_64-pc-windows-gnu
         shell: bash
 
