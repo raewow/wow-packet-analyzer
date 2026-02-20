@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "WoW Packet Analyzer",
+  "productName": "WoW Packet Viewer",
   "version": "0.1.0",
-  "identifier": "com.wow-packet-analyzer.app",
+  "identifier": "com.wow-packet-viewer.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "WoW Packet Analyzer",
+        "title": "WoW Packet Viewer",
         "width": 1200,
         "height": 800,
         "minWidth": 800,

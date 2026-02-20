@@ -1,7 +1,6 @@
 import { PacketDefinition } from "../../definitions";
 import {
   MovementInfo,
-  Vector3d,
   MonsterMoveType,
   SplineFlag,
   MonsterMoveSplines,
@@ -64,7 +63,15 @@ export const movementDefinitions: PacketDefinition[] = [
     direction: "SMSG",
     fields: [
       { kind: "primitive", name: "guid", type: "PackedGuid" },
-      Vector3d,
+      {
+        kind: "struct",
+        name: "start_position",
+        fields: [
+          { kind: "primitive", name: "x", type: "f32" },
+          { kind: "primitive", name: "y", type: "f32" },
+          { kind: "primitive", name: "z", type: "f32" },
+        ],
+      },
       { kind: "primitive", name: "spline_id", type: "u32" },
       { kind: "enum", name: "move_type", enumDef: MonsterMoveType },
       // if (move_type == FACING_TARGET)
@@ -81,7 +88,17 @@ export const movementDefinitions: PacketDefinition[] = [
           },
           {
             condition: { kind: "equals", field: "move_type", values: [2] }, // FACING_SPOT
-            fields: [Vector3d],
+            fields: [
+              {
+                kind: "struct",
+                name: "facing_spot",
+                fields: [
+                  { kind: "primitive", name: "x", type: "f32" },
+                  { kind: "primitive", name: "y", type: "f32" },
+                  { kind: "primitive", name: "z", type: "f32" },
+                ],
+              },
+            ],
           },
         ],
       },

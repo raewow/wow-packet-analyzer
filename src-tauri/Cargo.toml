@@ -1,7 +1,7 @@
 [package]
-name = "wow-packet-analyzer"
+name = "wow-packet-viewer"
 version = "0.1.0"
-description = "WoW Packet Analyzer - Tauri App"
+description = "WoW Packet Viewer - Tauri App"
 authors = ["you"]
 edition = "2021"
 

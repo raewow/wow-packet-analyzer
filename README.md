@@ -1,8 +1,8 @@
-# WoW Packet Analyzer
+# WoW Packet Viewer
 
 ![Screenshot](public/screenshot.png)
 
-A World of Warcraft packet analyzer for vanilla, tbc and wrath versions of the game.
+A World of Warcraft packet viewer for vanilla, tbc and wrath versions of the game.
 
 ## Features
 

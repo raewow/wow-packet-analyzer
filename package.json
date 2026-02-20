@@ -1,5 +1,5 @@
 {
-  "name": "wow-packet-analyzer",
+  "name": "wow-packet-viewer",
   "private": true,
   "version": "0.1.0",
   "type": "module",

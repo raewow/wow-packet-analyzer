@@ -1038,26 +1038,85 @@ export const AuraLog: FieldDef = {
   ],
 };
 
-export const MonsterMoveSplines: FieldDef = {
-  kind: "struct",
-  name: "MonsterMoveSplines",
-  fields: [
-    { kind: "primitive", name: "amount_of_spline_points", type: "u32" },
-    {
-      kind: "array",
-      name: "spline_points",
-      count: "amount_of_spline_points",
-      elementType: {
-        kind: "struct",
-        name: "SplinePoint",
-        fields: [
-          { kind: "primitive", name: "x", type: "f32" },
-          { kind: "primitive", name: "y", type: "f32" },
-          { kind: "primitive", name: "z", type: "f32" },
-        ],
+// Custom reader for MonsterMoveSplines to provide better error messages
+import { BinaryReader } from "../../BinaryReader";
+import { ParsedValue } from "../../types";
+
+function readMonsterMoveSplines(reader: BinaryReader): ParsedValue {
+  const countOffset = reader.offset;
+  const count = reader.readU32();
+  const pointsNeeded = count * 12; // Each point is 3 floats = 12 bytes
+  const bytesAvailable = reader.remaining;
+
+  if (pointsNeeded > bytesAvailable) {
+    // Warn about truncated data
+    const pointsPossible = Math.floor(bytesAvailable / 12);
+    throw new Error(
+      `MonsterMoveSplines: amount_of_spline_points=${count} (at offset ${countOffset}) requires ${pointsNeeded} bytes, ` +
+        `but only ${bytesAvailable} bytes remain. Can only parse ${pointsPossible} points. ` +
+        `Packet may be truncated or amount_of_spline_points is incorrect.`
+    );
+  }
+
+  const points: ParsedValue[] = [];
+  for (let i = 0; i < count; i++) {
+    const x = reader.readF32();
+    const y = reader.readF32();
+    const z = reader.readF32();
+    points.push({
+      kind: "struct",
+      fields: [
+        {
+          name: "x",
+          typeName: "f32",
+          value: { kind: "number", value: x },
+          offset: reader.offset - 12,
+          size: 4,
+        },
+        {
+          name: "y",
+          typeName: "f32",
+          value: { kind: "number", value: y },
+          offset: reader.offset - 8,
+          size: 4,
+        },
+        {
+          name: "z",
+          typeName: "f32",
+          value: { kind: "number", value: z },
+          offset: reader.offset - 4,
+          size: 4,
+        },
+      ],
+    });
+  }
+
+  return {
+    kind: "struct",
+    fields: [
+      {
+        name: "amount_of_spline_points",
+        typeName: "u32",
+        value: { kind: "number", value: count },
+        offset: countOffset,
+        size: 4,
       },
-    },
-  ],
+      {
+        name: "spline_points",
+        typeName: `SplinePoint[${count}]`,
+        value: { kind: "array", items: points, elementType: "SplinePoint" },
+        offset: countOffset + 4,
+        size: count * 12,
+      },
+    ],
+  };
+}
+
+export const MonsterMoveSplines: FieldDef = {
+  kind: "custom",
+  name: "MonsterMoveSplines",
+  typeName: "MonsterMoveSplines",
+  read: readMonsterMoveSplines,
 };
 
 // ============================================================

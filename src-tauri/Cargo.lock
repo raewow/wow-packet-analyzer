@@ -5221,7 +5221,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "wow-packet-analyzer"
+name = "wow-packet-viewer"
 version = "0.1.0"
 dependencies = [
  "chrono",

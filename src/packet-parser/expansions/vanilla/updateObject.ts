@@ -43,6 +43,7 @@ const VANILLA_UPDATE_FIELDS: Record<number, string> = {
 };
 
 function readUpdateMask(reader: BinaryReader): ParsedValue {
+  const blockCountOffset = reader.offset;
   const blockCount = reader.readU8();
 
   // Read bitmask blocks
@@ -56,30 +57,51 @@ function readUpdateMask(reader: BinaryReader): ParsedValue {
     );
   }
 
+  // Count total set bits for debugging
+  const totalSetBits = maskBlocks.reduce((count, block) => {
+    let bits = 0;
+    for (let i = 0; i < 32; i++) {
+      if (block & (1 << i)) bits++;
+    }
+    return count + bits;
+  }, 0);
+
   // Read values for each set bit
   const fields: ParsedField[] = [];
-  for (let block = 0; block < blockCount; block++) {
-    for (let bit = 0; bit < 32; bit++) {
-      if (maskBlocks[block] & (1 << bit)) {
-        const index = block * 32 + bit;
-        const fieldOffset = reader.offset;
-        const value = reader.readU32();
-        const name =
-          VANILLA_UPDATE_FIELDS[index] ??
-          `FIELD_0x${index.toString(16).toUpperCase().padStart(4, "0")}`;
-        fields.push({
-          name,
-          typeName: "u32",
-          value: {
-            kind: "number",
-            value,
-            display: `${value} (0x${(value >>> 0).toString(16).toUpperCase()})`,
-          },
-          offset: fieldOffset,
-          size: 4,
-        });
+  let fieldsRead = 0;
+  try {
+    for (let block = 0; block < blockCount; block++) {
+      for (let bit = 0; bit < 32; bit++) {
+        if (maskBlocks[block] & (1 << bit)) {
+          const index = block * 32 + bit;
+          const fieldOffset = reader.offset;
+          const value = reader.readU32();
+          fieldsRead++;
+          const name =
+            VANILLA_UPDATE_FIELDS[index] ??
+            `FIELD_0x${index.toString(16).toUpperCase().padStart(4, "0")}`;
+          fields.push({
+            name,
+            typeName: "u32",
+            value: {
+              kind: "number",
+              value,
+              display: `${value} (0x${(value >>> 0).toString(16).toUpperCase()})`,
+            },
+            offset: fieldOffset,
+            size: 4,
+          });
+        }
       }
     }
+  } catch (e) {
+    // Add context about UpdateMask parsing failure
+    const error = e instanceof Error ? e : new Error(String(e));
+    throw new Error(
+      `UpdateMask parsing failed: blockCount=${blockCount} (at offset ${blockCountOffset}), ` +
+        `expected ${totalSetBits} field values, successfully read ${fieldsRead}, ` +
+        `error: ${error.message}`
+    );
   }
 
   return { kind: "struct", fields };

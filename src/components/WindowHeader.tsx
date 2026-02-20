@@ -38,7 +38,7 @@ export default function WindowHeader() {
   return (
     <div className="window-header" onMouseDown={handleDragStart}>
       <div className="window-title">
-        WoW Packet Analyzer
+        WoW Packet Viewer
       </div>
       <div className="window-controls" onMouseDown={(e) => e.stopPropagation()}>
         <button

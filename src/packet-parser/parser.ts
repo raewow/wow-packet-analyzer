@@ -104,8 +104,18 @@ function readField(
       else if (def.elementType.kind === "enum") elementType = def.name;
 
       for (let i = 0; i < count; i++) {
-        const field = readField(reader, def.elementType, context);
-        items.push(field.value);
+        const elementStartOffset = reader.offset;
+        try {
+          const field = readField(reader, def.elementType, context);
+          items.push(field.value);
+        } catch (e) {
+          // If we fail to parse an array element, throw with more context
+          const errorMsg = e instanceof ParseError ? e.message : String(e);
+          const bytesConsumed = reader.offset - elementStartOffset;
+          throw new ParseError(
+            `Failed to parse array element ${i}/${count} of ${def.name} (element started at offset ${elementStartOffset}, consumed ${bytesConsumed} bytes): ${errorMsg}`
+          );
+        }
       }
       value = { kind: "array", items, elementType };
       break;
